@@ -21,6 +21,25 @@ def panpan(m):
 
 	return r, nr
 
+
+def diffstrings(a,b,na,nb):
+	"""Diff two strings"""
+	a, b = a.splitlines(), b.splitlines()
+
+	import difflib
+
+	diff = difflib.unified_diff(a, b, na, nb, n=10)
+	return diff
+
+def diffdocs(x,y):
+	"""Diff the documents"""
+
+	a,na = panpan(x)
+	b,nb = panpan(y)
+
+	diff = diffstrings(a, b, na, nb)
+	return diff
+
 def runksdiff(a,b):
 	"""Run Kaleidoscope's ksdiff to compare the files and block until closed"""
 
@@ -35,35 +54,21 @@ def runksdiff(a,b):
 		tb.write(b)
 
 		# Run ksdiff
-		print('A: ' + ta.name)
-		print('B: ' + tb.name)
+		print('# A: ' + ta.name)
+		print('# B: ' + tb.name)
 		subprocess.check_output(['ksdiff', '--wait', ta.name, tb.name])
 
 def main(args):
 	if len(args) < 2:
 		print('''Usage: %(script)s fileA fileB\nDiff the files using Kaleidoscope's ksdiff tool after converting to markdown.''' % {'script': os.path.basename(__file__)})
 		sys.exit(1)
+
+
+	diff = diffdocs(args[0], args[1])
+	print('\n'.join(diff))
+	print('')
+
 	runksdiff(args[0], args[1])
-
-	#diff = diffdocs(args[0], args[1])
-	#print('\n'.join(diff))
-
-#def diffstrings(a,b,na,nb):
-#	"""Diff two strings"""
-#	a, b = a.splitlines(), b.splitlines()
-#
-#	import difflib
-#
-#	diff = difflib.context_diff(a, b, na, nb, n=10)
-#	return diff
-#
-#def diffdocs(x,y):
-#	"""Diff the documents"""
-#	a,na = panpan(x)
-#	b,nb = panpan(y)
-#
-#	diff = diffstrings(a, b, na, nb)
-#	return diff
 	
 if __name__ == '__main__':
 	main(sys.argv[1:])
